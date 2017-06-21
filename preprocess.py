@@ -32,7 +32,7 @@ def _load_letter(folder, letter_folder, cache_if_possible=True):
         # Try to use cached dataset
         dataset = _get_cached_letter(letter_folder)
 
-    if not dataset:
+    if dataset == None:
         # Get the image names
         image_files = os.listdir(_get_letter_input_folder(folder, letter_folder))
 
@@ -41,15 +41,18 @@ def _load_letter(folder, letter_folder, cache_if_possible=True):
 
         image_index = 0
         for image_file in image_files:
-            # Get image file (name)
-            image_filepath = __get_letter_input_file(folder, letter_folder, image_file)
+            try:
+                # Get image file (name)
+                image_filepath = __get_letter_input_file(folder, letter_folder, image_file)
 
-            # Read image
-            image_data = (ndimage.imread(image_filepath).astype(float) - PIXEL_DEPTH / 2) / PIXEL_DEPTH
+                # Read image
+                image_data = (ndimage.imread(image_filepath).astype(float) - PIXEL_DEPTH / 2) / PIXEL_DEPTH
 
-            # Store the image in the dataset
-            dataset[image_index, :, :] = image_data
-            image_index += 1
+                # Store the image in the dataset
+                dataset[image_index, :, :] = image_data
+                image_index += 1
+            except Exception as exp:
+                print("Got %s reading %s" % (str(exp), image_file))
 
         # Cache the dataset
         _cache_letter(letter_folder, dataset)
